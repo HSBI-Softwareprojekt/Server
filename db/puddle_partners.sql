@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 06. Mai 2024 um 21:13
+-- Erstellungszeit: 08. Mai 2024 um 16:45
 -- Server-Version: 10.4.32-MariaDB
 -- PHP-Version: 8.2.12
 
@@ -20,6 +20,18 @@ SET time_zone = "+00:00";
 --
 -- Datenbank: `puddle_partners`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `level`
+--
+
+CREATE TABLE `level` (
+  `user_id` bigint(255) NOT NULL COMMENT 'Benutzer ID',
+  `level` int(11) NOT NULL COMMENT 'Level',
+  `creation_date` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Erstellzeit'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -53,6 +65,12 @@ CREATE TABLE `users` (
 --
 -- Indizes der exportierten Tabellen
 --
+
+--
+-- Indizes für die Tabelle `level`
+--
+ALTER TABLE `level`
+  ADD PRIMARY KEY (`user_id`,`level`);
 
 --
 -- Indizes für die Tabelle `scoreboard`
