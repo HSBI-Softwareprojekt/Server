@@ -1,6 +1,6 @@
 <?php
 if(isset($_POST["DATA"])) {
-	include('./db.php');
+	include('db.php');
 	$error = false;
 	$msg["ERROR"] = array();
 	$data = array();
@@ -48,8 +48,12 @@ if(isset($_POST["DATA"])) {
 	}
 	
 	if(!$error) {
-		echo JSON_ENCODE($data);
+		echo "DATA";
+		echo "<!=!>".$data;
 	} else {
-		echo JSON_ENCODE($msg);
+		echo "ERROR";
+		foreach($msg["ERROR"] as $index => $err) {
+			echo "<!=!>".$err;
+		}
 	}
 } ?>
