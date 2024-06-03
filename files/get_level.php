@@ -2,22 +2,22 @@
 if(isset($_POST["DATA"])) {
 	include('./db.php');
 	$error = false;
-	$msg["ERROR"] = array();
+	$msg["error"] = array();
 	$data = array();
 
 	$post = JSON_DECODE($_POST["DATA"], true);
 	if(strlen($post["PLAYER"]) == 0) {
 		$error = true;
-		$msg["ERROR"][] = "Übertragungs Fehler, kein Spieler";
+		$msg["error"][] = "Übertragungs Fehler, kein Spieler";
 	} else if(!is_numeric($post["PLAYER"])) {
 		$error = true;
-		$msg["ERROR"][] = "Übertragungs Fehler, Spieler hat eine ungültige ID";
+		$msg["error"][] = "Übertragungs Fehler, Spieler hat eine ungültige ID";
 	} else {
 		$sql = "SELECT id FROM users WHERE id = ".intval($post["PLAYER"]);
 		$result = $pdo->query($sql)->fetch();
 		if(!$result) {
 			$error = true;
-			$msg["ERROR"][] = "Spieler existiert nicht";
+			$msg["error"][] = "Spieler existiert nicht";
 		} else {
 			$post["PLAYER"] = intval($post["PLAYER"]);
 		}
@@ -32,12 +32,8 @@ if(isset($_POST["DATA"])) {
 	}
 	
 	if(!$error) {
-		echo "DATA";
-		echo "<!=!>".$data;
+		echo JSON_ENCODE($data);
 	} else {
-		echo "ERROR";
-		foreach($msg["ERROR"] as $index => $err) {
-			echo "<!=!>".$err;
-		}
+		echo JSON_ENCODE($msg);
 	}
 } ?>
