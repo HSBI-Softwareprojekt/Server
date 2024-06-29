@@ -31,7 +31,7 @@ if(isset($_POST["ID"])) {
 			$data["level"][] = intval($row["level"]);
 		} mysqli_free_result($res);
 		if(count($data) == 0) {
-			$data["level"][] = 0;
+			$data["level"][] = -1;
 		}
 	}
 	

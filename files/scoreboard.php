@@ -1,54 +1,58 @@
 <?php
-if(isset($_POST["DATA"])) {
+if(isset($_POST["HOST_ID"]) and isset($_POST["CLIENT_ID"]) and isset($_POST["LEVEL"]) and isset($_POST["TIME"])) {
 	include('db.php');
 	$error = false;
 	$msg["error"] = array();
 	$data = array();
-
-	$post = JSON_DECODE($_POST["DATA"], true);
 	
-	if(strlen($post["PLAYER_1"]) == 0) {
+	
+	$host = trim($_POST["HOST_ID"]);
+	$client = trim($_POST["CLIENT_ID"]);
+	$level = trim($_POST["LEVEL"]);
+	$time = trim($_POST["TIME"]);
+	
+	if(strlen($host) == 0) {
 		$error = true;
-		$msg["error"][] = "Übertragungs Fehler, kein Spieler eins";
-	} else if(!is_numeric($post["PLAYER_1"])) {
+		$msg["error"][] = "Übertragungs Fehler, kein Spieler 1";
+	} else if(!is_numeric($host)) {
 		$error = true;
-		$msg["error"][] = "Übertragungs Fehler, Spieler eins hat eine ungültige ID";
+		$msg["error"][] = "Übertragungs Fehler, Spieler 1 hat eine ungültige ID";
 	} else {
-		$sql = "SELECT id FROM users WHERE id = ".intval($post["PLAYER_1"]);
+		$sql = "SELECT id FROM users WHERE id = ".intval($host);
 		$result = $pdo->query($sql)->fetch();
 		if(!$result) {
 			$error = true;
-			$msg["error"][] = "Spieler eins existiert nicht";
+			$msg["error"][] = "Spieler 1 existiert nicht";
 		} else {
-			$post["PLAYER_1"] = intval($post["PLAYER_1"]);
+			$host = intval($host);
 		}
 	}
-	if(strlen($post["PLAYER_2"]) == 0) {
+	if(strlen($client) == 0) {
 		$error = true;
-		$msg["error"][] = "Übertragungs Fehler, kein Spieler zwei";
-	} else if(!is_numeric($post["PLAYER_2"])) {
+		$msg["error"][] = "Übertragungs Fehler, kein Spieler 2";
+	} else if(!is_numeric($client)) {
 		$error = true;
-		$msg["error"][] = "Übertragungs Fehler, Spieler zwei hat eine ungültige ID";
+		$msg["error"][] = "Übertragungs Fehler, Spieler 2 hat eine ungültige ID";
 	} else {
-		$sql = "SELECT id FROM users WHERE id = ".intval($post["PLAYER_2"]);
+		$sql = "SELECT id FROM users WHERE id = ".intval($client);
 		$result = $pdo->query($sql)->fetch();
 		if(!$result) {
 			$error = true;
-			$msg["error"][] = "Spieler zwei existiert nicht";
+			$msg["error"][] = "Spieler 2 existiert nicht";
 		} else {
-			$post["PLAYER_2"] = intval($post["PLAYER_2"]);
+			$client = intval($client);
 		}
 	}
-	if(strlen($post["LEVEL"]) == 0) {
+	if(strlen($level) == 0) {
 		$error = true;
 		$msg["error"][] = "Übertragungs Fehler, kein Level";
-	} else if(!is_numeric($post["LEVEL"])) {
+	} else if(!is_numeric($level)) {
 		$error = true;
 		$msg["error"][] = "Übertragungs Fehler, ungültiges Level";
 	} else {
-		$post["LEVEL"] = intval($post["LEVEL"]);
+		$level = intval($level);
 	}
-	if(strlen($post["TIME"]) == 0) {
+	if(strlen($time) == 0) {
 		$error = true;
 		$msg["error"][] = "Übertragungs Fehler, keine Zeit";
 	}
@@ -68,11 +72,11 @@ if(isset($_POST["DATA"])) {
 	};
 
 	if(!$error) {
-		$check_1 = check_score($post["PLAYER_1"], $post["PLAYER_2"], $post["LEVEL"]);
-		$check_2 = check_score($post["PLAYER_2"], $post["PLAYER_1"], $post["LEVEL"]);
+		$check_1 = check_score($host, $client, $level, $time);
+		$check_2 = check_score($client, $host, $level, $time);
 		if(!$check_1 and !$check_2) {
-			$statement = $pdo->prepare("INSERT INTO scoreboard (player_1, player_2, level, time) VALUES (player_1, player_2, level, time)");
-			$result = $statement->execute(array("player_1" => $post["PLAYER_1"], "player_2" => $post["PLAYER_2"], "level" => $post["LEVEL"], "time" => $post["time"]));
+			$statement = $pdo->prepare("INSERT INTO scoreboard (player_1, player_2, level, time) VALUES (:player_1, :player_2, :level, :time)");
+			$result = $statement->execute(array("player_1" => $host, "player_2" => $client, "level" => $level, "time" => $time));
 			if(!$result) {
 				$error = true;
 				$msg["error"][] = "Score konnte nicht auf dem Scoreboard gespeichert werden (neu)";
@@ -91,39 +95,101 @@ if(isset($_POST["DATA"])) {
 				$error = true;
 				$msg["error"][] = "Vorherige Score Zeit konnte vom Scoreboard nicht aufgerufen werden";
 			} else {
-				if(strtotime($post["TIME"]) < strtotime($result["time"])) {
+				if(strtotime($time) < strtotime($result["time"])) {
 					$statement = $pdo->prepare("UPDATE scoreboard SET time = :time WHERE id = ".$id);
-					$result = $statement->execute(array("time" => $post["time"]));
+					$result = $statement->execute(array("time" => $time));
 					if(!$result) {
 						$error = true;
 						$msg["error"][] = "Neue Zeit konnte nicht auf dem Scoreboard gespeichert werden (aktualisierung)";
 					}
 				}
+				$new_time = strtotime($time);
+				$old_time = strtotime($result["time"]);
 			}
 		}
 	}
 	
 	if(!$error) {
+		$score_is_shown = false;
 		$i = 0;
-		$sql = "SELECT id, player_1, player_2, level, time FROM scoreboard WHERE level = ".$post["LEVEL"]." ORDER BY time ASC";
+		$sql = "SELECT id, player_1, player_2, level, time FROM scoreboard WHERE level = ".$level." ORDER BY time ASC LIMIT 50";
 		$res = mysqli_query($mysqli, $sql);
 		while($row = mysqli_fetch_assoc($res)) {
 			$sql = "SELECT id, username FROM users WHERE id = ".$row["player_1"];
 			$player_1 = $pdo->query($sql)->fetch();
 			$sql = "SELECT id, username FROM users WHERE id = ".$row["player_2"];
 			$player_2 = $pdo->query($sql)->fetch();
-			$data[$i]["RANK"] = "Platz: ".($i+1);
-			$data[$i]["PLAYER_1"] = $player_1["username"];
-			$data[$i]["PLAYER_2"] = $player_2["username"];
-			$data[$i]["LEVEL"] = intval($row["level"]);
-			$data[$i]["TIME"] = $row["time"];
+			$data["score"][] = strval($i+1);
+			$data["score"][] = $player_1["username"];
+			$data["score"][] = $player_2["username"];
+			$data["score"][] = strval($row["level"]);
 			if($row["id"] == $id) {
-				$data[$i]["OWN"] = 1;
+				$score_is_shown = true;
+				$data["score"][] = "1";
+				if($check_1 or $check_2) {
+					$data["score"][] = "0";
+					if(strtotime($new_time) > strtotime($old_time)) {
+						$data["score"][] = "1";
+						$data["score"][] = $row["time"];
+						$data["score"][] = date("H:i:s", $new_time);
+					} else {
+						$data["score"][] = "0";
+						$data["score"][] = date("H:i:s", $old_time);
+						$data["score"][] = $row["time"];
+					}
+				} else {
+					$data["score"][] = "1";
+					$data["score"][] = "0";
+					$data["score"][] = "0";
+					$data["score"][] = $row["time"];
+				}
 			} else {
-				$data[$i]["OWN"] = 0;
+				$data["score"][] = "0";
+				$data["score"][] = "0";
+				$data["score"][] = "0";
+				$data["score"][] = "0";
+				$data["score"][] = $row["time"];
 			}
+			$i++;
 		} mysqli_free_result($res);
 		unset($i);
+		if(!$score_is_shown) {
+			$i = 0;
+			$sql = "SELECT id, player_1, player_2, level, time FROM scoreboard WHERE level = ".$level." ORDER BY time ASC";
+			$res = mysqli_query($mysqli, $sql);
+			while($row = mysqli_fetch_assoc($res)) {
+				if(intval($row["player_1"]) == $host and intval($row["player_2"]) == $client or intval($row["player_1"]) == $client and intval($row["player_2"]) == $host) {
+					$sql = "SELECT id, username FROM users WHERE id = ".$row["player_1"];
+					$player_1 = $pdo->query($sql)->fetch();
+					$sql = "SELECT id, username FROM users WHERE id = ".$rpw["player_2"];
+					$player_2 = $pdo->query($sql)->fetch();
+					$data["score"][] = strval($i+1);
+					$data["score"][] = $player_1["username"];
+					$data["score"][] = $player_2["username"];
+					$data["score"][] = strval($row["level"]);;
+					$data["score"][] = "1";
+					if($check_1 or $check_2) {
+						$data["score"][] = "0";
+						if(strtotime($new_time) < strtotime($old_time)) {
+							$data["score"][] = "1";
+							$data["score"][] = "0";
+						} else {
+							$data["score"][] = "0";
+							$data["score"][] = date("H:i:s", $old_time);
+						}
+						$data["score"][] = $row["time"];
+					} else {
+						$data["score"][] = "1";
+						$data["score"][] = "0";
+						$data["score"][] = "0";
+						$data["score"][] = $row["time"];
+					}
+					break;
+				}
+				$i++;
+			} mysqli_free_result($res);
+			unset($i);
+		}
 	}
 
 	if(!$error) {

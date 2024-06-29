@@ -23,6 +23,7 @@ if(isset($_POST["USERNAME"]) and isset($_POST["PASSWORD"])) {
 		$user = $statement->fetch();
 		if($user !== false && password_verify($password, $user["password"])) {
 			$data["id"] = intval($user["id"]);
+			$data["name"] = $user["username"];
 		} else {
 			$error = true;
 			$msg["error"][] = "Passwort oder Benutzername falsch";
