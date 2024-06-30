@@ -97,8 +97,8 @@ if(isset($_POST["HOST_ID"]) and isset($_POST["CLIENT_ID"]) and isset($_POST["LEV
 			} else {
 				if(strtotime($time) < strtotime($result["time"])) {
 					$statement = $pdo->prepare("UPDATE scoreboard SET time = :time WHERE id = ".$id);
-					$result = $statement->execute(array("time" => $time));
-					if(!$result) {
+					$update = $statement->execute(array("time" => $time));
+					if(!$update) {
 						$error = true;
 						$msg["error"][] = "Neue Zeit konnte nicht auf dem Scoreboard gespeichert werden (aktualisierung)";
 					}
@@ -128,26 +128,26 @@ if(isset($_POST["HOST_ID"]) and isset($_POST["CLIENT_ID"]) and isset($_POST["LEV
 				$data["score"][] = "1";
 				if($check_1 or $check_2) {
 					$data["score"][] = "0";
-					if(strtotime($new_time) > strtotime($old_time)) {
+					if($new_time < $old_time) {
 						$data["score"][] = "1";
-						$data["score"][] = $row["time"];
+						$data["score"][] = date("H:i:s", $old_time);
 						$data["score"][] = date("H:i:s", $new_time);
 					} else {
 						$data["score"][] = "0";
 						$data["score"][] = date("H:i:s", $old_time);
-						$data["score"][] = $row["time"];
+						$data["score"][] = date("H:i:s", $new_time);
 					}
 				} else {
 					$data["score"][] = "1";
 					$data["score"][] = "0";
-					$data["score"][] = "0";
+					$data["score"][] = "00:00:00";
 					$data["score"][] = $row["time"];
 				}
 			} else {
 				$data["score"][] = "0";
 				$data["score"][] = "0";
 				$data["score"][] = "0";
-				$data["score"][] = "0";
+				$data["score"][] = "00:00:00";
 				$data["score"][] = $row["time"];
 			}
 			$i++;
@@ -170,18 +170,19 @@ if(isset($_POST["HOST_ID"]) and isset($_POST["CLIENT_ID"]) and isset($_POST["LEV
 					$data["score"][] = "1";
 					if($check_1 or $check_2) {
 						$data["score"][] = "0";
-						if(strtotime($new_time) < strtotime($old_time)) {
+						if($new_time < $old_time) {
 							$data["score"][] = "1";
-							$data["score"][] = "0";
+							$data["score"][] = date("H:i:s", $old_time);
+							$data["score"][] = date("H:i:s", $new_time);
 						} else {
 							$data["score"][] = "0";
 							$data["score"][] = date("H:i:s", $old_time);
+							$data["score"][] = date("H:i:s", $new_time);
 						}
-						$data["score"][] = $row["time"];
 					} else {
 						$data["score"][] = "1";
 						$data["score"][] = "0";
-						$data["score"][] = "0";
+						$data["score"][] = "00:00:00";
 						$data["score"][] = $row["time"];
 					}
 					break;
