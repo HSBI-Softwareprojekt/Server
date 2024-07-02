@@ -6,9 +6,9 @@
 - Konsole öffnen
 - Den Befehl "sudo apt install apache2" ausführen
 - Den Befehl "sudo apt install php libapache2-mod-php" ausführen
-- Den Befehl "sudo apt install mysql-server" ausführen
+- Für Ubuntu den Befehl "sudo apt install mysql-server" ausführen für Debian Bookworm “sudo apt install mariadb” ausführen
 - Den Befehl "sudo systemctl start mysql.service" ausführen
-- Den Befehl "sudo apt install phpmyadmin" ausführen (Dialog 1: apache2 auswhählen, Dialog 2: Ja, Dialog 3: Passwort setzen)
+- Den Befehl "sudo apt install phpmyadmin" ausführen (Dialog 1: apache2 auswählen, Dialog 2: Ja, Dialog 3: Passwort setzen)
 - Den Befehl "sudo ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf" ausführen
 - Den Befehl "sudo a2enconf phpmyadmin.conf" ausführen
 - Den Befehl "sudo systemctl reload apache2.service" ausführen
@@ -17,7 +17,7 @@
 - Datenbank Befehl "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'yourpassword';" ausführen
 - Den Befehl "sudo chmod 777 /var/www/html" ausführen (Schreibrechte)
 - Den Ordner unter "/var/www/html" öffnen und alle Datein entfernen
-- Im Ordner "/var/www/html" einen neuen Ordner mit dem Namen "puddle_partners" anlegen und die PHP Datein aus dem Ordner "files" in den Ordner "puddle_partners" kopieren
+- Im Ordner "/var/www/html" einen neuen Ordner mit dem Namen "puddle_partners" anlegen und die PHP Dateien aus dem Ordner "files" in den Ordner "puddle_partners" kopieren
 - Im Webbrowser die Seite "localhost/phpmyadmin/" aufrufen
 - Mit "root" und "yourpassword" anmelden
 - Neue leere Datenbank puddle_partners anlegen
@@ -30,10 +30,10 @@
 
 ## Installation Windows (nicht empfohlen)
 - Port 80 auf dem Router freigeben (TCP/UDP)
-- Port 80 als Firewall Ausnahme konfigurieren (wird bei der installation vom Apache Webserver automatisch abgefragt)
+- Port 80 als Firewall Ausnahme konfigurieren (wird bei der installation von Apache Web Server automatisch abgefragt)
 - Xampp 8.2.12 herunterladen und installieren (Apache Webserver, PHP, phpMyAdmin, der Rest wird nicht benötigt)
-- In den Xampp Installationsordner gehen "C:\Xampp\" den Ordner "htdocs" öffnen und alle Datein entfernen
-- Im Ordner "htdocs" einen neuen Ordner "puddle_partners" anlegen und die PHP Datein aus dem Ordner "files" in den Ordner "puddle_partners" kopieren
+- In den Xampp Installationsordner gehen "C:\Xampp\" den Ordner "htdocs" öffnen und alle Dateien entfernen
+- Im Ordner "htdocs" einen neuen Ordner "puddle_partners" anlegen und die PHP Dateien aus dem Ordner "files" in den Ordner "puddle_partners" kopieren
 - Xampp Controlpanel öffnen und Apache Webserver und MySQL starten
 - Im Xampp Controlpanel unter MySQL auf den Button "Admin" klicken, es öffnet sich der Webbrowser => phpMyAdmin
 - Neue leere Datenbank puddle_partners anlegen
